@@ -6,6 +6,10 @@
 npm install @mharj/cache-storage
 ```
 
+## API documentation
+
+https://mharj.github.io/cache-storage/
+
 ## Usage example with ETags and server side cache validation
 
 ```typescript
