@@ -1,0 +1,84 @@
+{
+	"name": "@mharj/cache-storage",
+	"version": "0.0.1",
+	"description": "Cache storage API functions",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"require": "./dist/index.js",
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"doc": "typedoc",
+		"build": "tsup src/index.ts --format cjs,esm --dts --clean",
+		"prepublishOnly": "npm run build",
+		"test": "nyc mocha",
+		"coverage": "nyc report --reporter=lcovonly",
+		"lint": "eslint src"
+	},
+	"files": [
+		"dist"
+	],
+	"repository": "github:mharj/cache-storage",
+	"keywords": [
+		"storage",
+		"cache"
+	],
+	"mocha": {
+		"exit": true,
+		"extension": [
+			"ts",
+			"js"
+		],
+		"recursive": true,
+		"require": [
+			"ts-node/register",
+			"source-map-support/register"
+		],
+		"reporters": [
+			"spec",
+			"mocha-junit-reporter"
+		]
+	},
+	"nyc": {
+		"check-coverage": true,
+		"extension": [
+			".ts",
+			".js"
+		]
+	},
+	"author": "mharj",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/chai": "^4.3.5",
+		"@types/chai-as-promised": "^7.1.5",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "^18.17.14",
+		"@types/sinon": "^10.0.16",
+		"@typescript-eslint/eslint-plugin": "^6.5.0",
+		"@typescript-eslint/parser": "^6.5.0",
+		"chai": "^4.3.8",
+		"chai-as-promised": "^7.1.1",
+		"eslint": "^8.48.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-config-standard": "^17.1.0",
+		"eslint-plugin-deprecation": "^1.5.0",
+		"eslint-plugin-jsdoc": "^46.5.1",
+		"eslint-plugin-prettier": "^5.0.0",
+		"eslint-plugin-sonarjs": "^0.21.0",
+		"mocha": "^10.2.0",
+		"nyc": "^15.1.0",
+		"prettier": "^3.0.3",
+		"sinon": "^15.2.0",
+		"source-map-support": "^0.5.21",
+		"ts-node": "^10.9.1",
+		"tslib": "^2.6.2",
+		"tsup": "^7.2.0",
+		"typedoc": "^0.25.0",
+		"typescript": "^5.2.2"
+	}
+}
