@@ -31,6 +31,9 @@ function getCacheOptions({ignoreMethod, ignoreSearch, ignoreVary}: CacheQueryOpt
 	return {ignoreMethod, ignoreSearch, ignoreVary};
 }
 
+/**
+ * build Reuqest from RequestInfo | URL
+ */
 function buildRequest(request: RequestInfo | URL) {
 	if (request instanceof Request) {
 		return request;
