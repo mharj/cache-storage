@@ -91,6 +91,12 @@ export async function cacheMatch(request: RequestInfo | URL, options?: CacheOpti
 	return undefined;
 }
 
+function rebuildHeaders(res: Response): Headers {
+	const headers = new Headers();
+	res.headers.forEach((value, key) => headers.set(key, value)); // clone headers
+	return headers;
+}
+
 /**
  * Store response in cache if response is ok (2xx status codes)
  * - if Authorization header is set, we are removing it from the request before storing it in cache
@@ -108,7 +114,7 @@ export async function cacheStore(request: RequestInfo | URL, res: Response, cach
 		const req = buildRequest(request);
 		const cache = await storage.open(cacheName);
 		// clone response to be able to use it twice
-		const headers = new Headers(res.headers);
+		const headers = rebuildHeaders(res);
 		headers.delete('Authorization'); // remove Authorization header from cache
 		const clonedRes = res.clone(); // avoid consuming original response body
 		const rebuildRes = new Response(clonedRes.body, {
