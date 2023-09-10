@@ -1,6 +1,6 @@
 {
 	"name": "@mharj/cache-storage",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Cache storage API functions",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
