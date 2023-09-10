@@ -17,7 +17,7 @@
 <h1>Function cacheDelete</h1></div>
 <section class="tsd-panel">
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="cacheDelete"><span class="tsd-kind-call-signature">cache<wbr/>Delete</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">cacheName</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#cacheDelete" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="cacheDelete"><span class="tsd-kind-call-signature">cache<wbr/>Delete</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">cacheName</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;no-storage&quot;</span><span class="tsd-signature-symbol">&gt;</span><a href="#cacheDelete" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>delete cache store by name</p>
 </div>
@@ -29,10 +29,11 @@
 <div class="tsd-comment tsd-typography"><p>name of the cache to delete (default: &#39;default&#39;)</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;no-storage&quot;</span><span class="tsd-signature-symbol">&gt;</span></h4><p>boolean if cache was deleted or &#39;no-storage&#39; if no cache storage is available</p>
+
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/mharj/cache-storage/blob/e58a1b7/src/index.ts#L141">index.ts:141</a></li></ul></aside></li></ul></section></div>
+<li>Defined in <a href="https://github.com/mharj/cache-storage/blob/5d665a9/src/index.ts#L147">index.ts:147</a></li></ul></aside></li></ul></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -56,6 +57,7 @@
 <li><a href="cacheDelete.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-64"></use></svg>cacheDelete</a></li>
 <li><a href="cacheMatch.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-64"></use></svg>cacheMatch</a></li>
 <li><a href="cacheStore.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-64"></use></svg>cacheStore</a></li>
+<li><a href="deleteOldRequests.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-64"></use></svg>deleteOldRequests</a></li>
 <li><a href="haveCacheStorage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-64"></use></svg>haveCacheStorage</a></li>
 <li><a href="setCacheStorage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-64"></use></svg>setCacheStorage</a></li></ul></nav></div></div></div>
 <div class="tsd-generator">

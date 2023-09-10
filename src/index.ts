@@ -123,24 +123,68 @@ export async function cacheStore(request: RequestInfo | URL, res: Response, cach
  * const bingImageList: string[] = await getBingImageUrlList();
  * await cacheCleanup('https://bing.com/th', bingImageList);
  */
-export async function cacheCleanup(basePath: string, excludeUrls: string[], cacheName = 'default'): Promise<void> {
+export async function cacheCleanup(request: RequestInfo | URL, excludeUrls: string[], cacheName = 'default'): Promise<number> {
+	let count = 0;
 	const storage = getCacheStorage();
 	if (storage) {
+		const req = buildRequest(request);
 		const cache = await storage.open(cacheName);
-		const notFound = (await cache.keys()).filter((res) => res.url.startsWith(basePath) && excludeUrls.indexOf(res.url) === -1);
+		const notFound = (await cache.keys()).filter((res) => res.url.startsWith(req.url) && excludeUrls.indexOf(res.url) === -1);
 		for (const req of notFound) {
-			await cache.delete(req);
+			if (await cache.delete(req)) {
+				count++;
+			}
 		}
 	}
+	return count;
 }
 
 /**
  * delete cache store by name
  * @param cacheName name of the cache to delete (default: 'default')
+ * @returns boolean if cache was deleted or 'no-storage' if no cache storage is available
  */
-export async function cacheDelete(cacheName = 'default'): Promise<void> {
+export async function cacheDelete(cacheName = 'default'): Promise<boolean | 'no-storage'> {
 	const storage = getCacheStorage();
 	if (storage) {
-		await storage.delete(cacheName);
+		return await storage.delete(cacheName);
 	}
+	return 'no-storage';
+}
+
+async function getDateHeader(resPromise: Response | undefined | Promise<Response | undefined>): Promise<Date | undefined> {
+	const res = await resPromise;
+	// istanbul ignore next
+	if (!res) {
+		return undefined;
+	}
+	const dateString = res.headers.get('date');
+	if (dateString) {
+		return new Date(dateString);
+	}
+	// istanbul ignore next
+	return undefined;
+}
+
+/**
+ * Delete old requests from cache based on Response header 'date'
+ * @param timestamp delete older requests than this Date timestamp
+ * @param cacheName name of the cache to delete (default: 'default')
+ * @returns number of deleted requests
+ */
+export async function deleteOldRequests(timestamp: Date, cacheName = 'default'): Promise<number> {
+	let count = 0;
+	const storage = getCacheStorage();
+	if (storage) {
+		const ts = timestamp.getTime();
+		const cache = await storage.open(cacheName);
+		const keys = await cache.keys();
+		for (const req of keys) {
+			const date = await getDateHeader(cache.match(req));
+			if (date && ts < date.getTime() && (await cache.delete(req))) {
+				count++;
+			}
+		}
+	}
+	return count;
 }

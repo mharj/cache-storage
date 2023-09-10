@@ -4,13 +4,15 @@
 import 'mocha';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import {setCacheStorage, haveCacheStorage, cacheStore, cacheCleanup, cacheMatch, cacheDelete} from '../src/';
+import {setCacheStorage, haveCacheStorage, cacheStore, cacheCleanup, cacheMatch, cacheDelete, deleteOldRequests} from '../src/';
 import {MockupCacheStore} from './lib/mockupCache';
 
 const req = new Request('https://example.com/one');
 const reqTwo = new Request('https://example.com/two');
+
 const res = new Response('Hello World');
 res.headers.set('ETag', '1234567890');
+res.headers.set('Date', 'Mon, 01 Jan 2001 00:00:00 GMT');
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -36,11 +38,15 @@ describe('cache-storage', () => {
 			expect(req.headers.get('if-match')).to.be.null;
 		});
 		it('should clean cache', async function () {
-			await expect(cacheCleanup('https://example.com', ['/two'])).to.be.eventually.undefined;
+			await expect(cacheCleanup(new Request('https://example.com'), ['/two'])).to.be.eventually.eq(0);
 			await expect(cacheMatch(reqTwo)).to.be.eventually.undefined;
 		});
+		it('should delete old', async function () {
+			await expect(deleteOldRequests(new Date('Mon, 01 Jan 2002 00:00:00 GMT'))).to.be.eventually.eq(0);
+			await expect(deleteOldRequests(new Date('Mon, 01 Jan 2000 00:00:00 GMT'))).to.be.eventually.eq(0);
+		});
 		it('should delete cache', async function () {
-			await expect(cacheDelete()).to.be.eventually.undefined;
+			await expect(cacheDelete()).to.be.eventually.eq('no-storage');
 		});
 	});
 	describe('mock cache store', () => {
@@ -75,15 +81,19 @@ describe('cache-storage', () => {
 			expect(req.headers.get('if-match')).to.be.eq('1234567890');
 		});
 		it('should clean cache', async function () {
-			await expect(cacheCleanup('https://example.com', ['https://example.com/two'])).to.be.eventually.undefined;
+			await expect(cacheCleanup(new Request('https://example.com'), ['https://example.com/two'])).to.be.eventually.eq(1);
 			await expect(cacheMatch(req)).to.be.eventually.undefined;
 			const cacheRes = await cacheMatch(reqTwo);
 			expect(cacheRes?.url).to.be.eq(res.url);
 			expect(cacheRes?.status).to.be.eq(res.status);
 			expect(cacheRes?.statusText).to.be.eq(res.statusText);
 		});
+		it('should delete old', async function () {
+			await expect(deleteOldRequests(new Date('Mon, 01 Jan 2002 00:00:00 GMT'))).to.be.eventually.eq(0);
+			await expect(deleteOldRequests(new Date('Mon, 01 Jan 2000 00:00:00 GMT'))).to.be.eventually.eq(1);
+		});
 		it('should delete cache', async function () {
-			await expect(cacheDelete()).to.be.eventually.undefined;
+			await expect(cacheDelete()).to.be.eventually.true;
 		});
 	});
 	describe('mock cache store url string', () => {
@@ -118,15 +128,19 @@ describe('cache-storage', () => {
 			expect(req.headers.get('if-match')).to.be.eq('1234567890');
 		});
 		it('should clean cache', async function () {
-			await expect(cacheCleanup('https://example.com', ['https://example.com/two'])).to.be.eventually.undefined;
+			await expect(cacheCleanup(new Request('https://example.com'), ['https://example.com/two'])).to.be.eventually.eq(1);
 			await expect(cacheMatch(req)).to.be.eventually.undefined;
 			const cacheRes = await cacheMatch('https://example.com/two');
 			expect(cacheRes?.url).to.be.eq(res.url);
 			expect(cacheRes?.status).to.be.eq(res.status);
 			expect(cacheRes?.statusText).to.be.eq(res.statusText);
 		});
+		it('should delete old', async function () {
+			await expect(deleteOldRequests(new Date('Mon, 01 Jan 2002 00:00:00 GMT'))).to.be.eventually.eq(0);
+			await expect(deleteOldRequests(new Date('Mon, 01 Jan 2000 00:00:00 GMT'))).to.be.eventually.eq(1);
+		});
 		it('should delete cache', async function () {
-			await expect(cacheDelete()).to.be.eventually.undefined;
+			await expect(cacheDelete()).to.be.eventually.true;
 		});
 	});
 });
