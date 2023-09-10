@@ -42,6 +42,17 @@ function buildRequest(request: RequestInfo | URL) {
 }
 
 /**
+ * copy of request without Authorization header
+ * @param request RequestInfo | URL to copy
+ * @returns Request without Authorization header
+ */
+function cacheRequest(request: RequestInfo | URL) {
+	const req = buildRequest(request).clone();
+	req.headers.delete('Authorization');
+	return req;
+}
+
+/**
  * - if ```{ifNoneMatch: true}``` is set, we are passing ETag value from cache response to the request 'if-none-match' header for data validation.
  * - if ```{ifMatch: true}``` is set, we are passing ETag value from cache response to the request 'if-match' header for data validation.
  */
@@ -91,15 +102,8 @@ export async function cacheMatch(request: RequestInfo | URL, options?: CacheOpti
 	return undefined;
 }
 
-function rebuildHeaders(res: Response): Headers {
-	const headers = new Headers();
-	res.headers.forEach((value, key) => headers.set(key, value)); // clone headers
-	return headers;
-}
-
 /**
  * Store response in cache if response is ok (2xx status codes)
- * - if Authorization header is set, we are removing it from the request before storing it in cache
  * @param req RequestInfo | URL to store
  * @param res Response to store
  * @param cacheName name of the cache to store (default: 'default')
@@ -111,17 +115,8 @@ function rebuildHeaders(res: Response): Headers {
 export async function cacheStore(request: RequestInfo | URL, res: Response, cacheName = 'default'): Promise<void> {
 	const storage = getCacheStorage();
 	if (storage && res.ok) {
-		const req = buildRequest(request);
 		const cache = await storage.open(cacheName);
-		// clone response to be able to use it twice
-		const headers = rebuildHeaders(res);
-		headers.delete('Authorization'); // remove Authorization header from cache
-		const clonedRes = res.clone(); // avoid consuming original response body
-		const rebuildRes = new Response(clonedRes.body, {
-			...clonedRes,
-			headers,
-		});
-		return cache.put(req, rebuildRes);
+		return cache.put(cacheRequest(request), res.clone());
 	}
 }
 
