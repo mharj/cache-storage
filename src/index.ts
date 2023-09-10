@@ -108,9 +108,14 @@ export async function cacheStore(request: RequestInfo | URL, res: Response, cach
 		const req = buildRequest(request);
 		const cache = await storage.open(cacheName);
 		// clone response to be able to use it twice
-		const clonedRes = res.clone();
-		clonedRes.headers.delete('Authorization'); // remove Authorization header from cache
-		return cache.put(req, clonedRes);
+		const headers = new Headers(res.headers);
+		headers.delete('Authorization'); // remove Authorization header from cache
+		const clonedRes = res.clone(); // avoid consuming original response body
+		const rebuildRes = new Response(clonedRes.body, {
+			...clonedRes,
+			headers,
+		});
+		return cache.put(req, rebuildRes);
 	}
 }
 

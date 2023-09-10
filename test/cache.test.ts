@@ -8,6 +8,7 @@ import {setCacheStorage, haveCacheStorage, cacheStore, cacheCleanup, cacheMatch,
 import {MockupCacheStore} from './lib/mockupCache';
 
 const req = new Request('https://example.com/one');
+req.headers.set('Authorization', '123');
 const reqTwo = new Request('https://example.com/two');
 
 const res = new Response('Hello World');
