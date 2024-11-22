@@ -5,9 +5,9 @@ type InteralCache = Record<string, RequestKey>;
 export class MockupCache implements Cache {
 	private cache: InteralCache = {};
 
-	public async add(request: RequestInfo | URL): Promise<void> {
+	public add(request: RequestInfo | URL): Promise<void> {
 		const req = this.buildRequest(request);
-		this.handleAdd(req);
+		return Promise.resolve(this.handleAdd(req));
 	}
 
 	private handleAdd(req: Request, res?: Response) {
@@ -27,7 +27,7 @@ export class MockupCache implements Cache {
 		}
 	}
 
-	private handleDelete(req: Request, options: CacheQueryOptions): boolean {
+	private handleDelete(req: Request, _options: CacheQueryOptions): boolean {
 		const entry = this.cache[req.url];
 		if (!entry) {
 			return false;
@@ -39,73 +39,73 @@ export class MockupCache implements Cache {
 		return true;
 	}
 
-	public async addAll(requests: RequestInfo[]): Promise<void>;
-	public async addAll(requests: Iterable<RequestInfo>): Promise<void>;
-	public async addAll(requests: unknown): Promise<void> {
-		if (requests instanceof Set || Array.isArray(requests)) {
-			requests.forEach((request) => {
-				const req = this.buildRequest(request);
-				this.handleAdd(req);
-			});
-		}
-		throw new TypeError('addAll() only accepts an array or a set.');
+	public addAll(requests: Iterable<RequestInfo>): Promise<void> {
+		Array.from(requests).forEach((request) => {
+			this.handleAdd(this.buildRequest(request));
+		});
+		return Promise.resolve();
 	}
 
-	public async delete(request: RequestInfo | URL, options?: CacheQueryOptions | undefined): Promise<boolean> {
+	public async delete(request: RequestInfo | URL, options?: CacheQueryOptions): Promise<boolean> {
 		const req = this.buildRequest(request);
-		return this.handleDelete(req, options || {});
+		return Promise.resolve(this.handleDelete(req, options || {}));
 	}
 
-	private handleReqKeyRequestList(keyObject: RequestKey, options: CacheQueryOptions): Request[] {
+	private handleReqKeyRequestList(keyObject: RequestKey, _options: CacheQueryOptions): Request[] {
 		return Object.values(keyObject).map((value) => value.req);
 	}
 
-	public async keys(request?: RequestInfo | URL | undefined, options?: CacheQueryOptions | undefined): Promise<readonly Request[]> {
+	public keys(request?: RequestInfo | URL, options?: CacheQueryOptions): Promise<readonly Request[]> {
 		if (request) {
 			const req = this.buildRequest(request);
 			const keyObject = this.cache[req.url];
 			if (!keyObject) {
-				return [];
+				return Promise.resolve([]);
 			}
-			return this.handleReqKeyRequestList(keyObject, options || {});
+			return Promise.resolve(this.handleReqKeyRequestList(keyObject, options || {}));
 		}
-		return Object.values(this.cache).reduce<Request[]>((acc, curr) => {
-			return acc.concat(this.handleReqKeyRequestList(curr, options || {}));
-		}, []);
+		return Promise.resolve(
+			Object.values(this.cache).reduce<Request[]>((acc, curr) => {
+				return acc.concat(this.handleReqKeyRequestList(curr, options || {}));
+			}, []),
+		);
 	}
 
-	public async match(request: RequestInfo | URL, options?: CacheQueryOptions | undefined): Promise<Response | undefined> {
+	public match(request: RequestInfo | URL, _options?: CacheQueryOptions): Promise<Response | undefined> {
 		const req = this.buildRequest(request);
 		const entry = this.cache[req.url];
 		if (!entry) {
-			return undefined;
+			return Promise.resolve(undefined);
 		}
-		return entry[req.method]?.res;
+		return Promise.resolve(entry[req.method]?.res);
 	}
 
 	private getResponsesFromEntry(entry: RequestKey): Response[] {
 		return Object.values(entry)
 			.map((value) => value.res)
-			.filter((res) => res !== undefined) as Response[];
+			.filter((res) => res !== undefined);
 	}
 
-	public async matchAll(request?: RequestInfo | URL | undefined, options?: CacheQueryOptions | undefined): Promise<readonly Response[]> {
+	public matchAll(request?: RequestInfo | URL, _options?: CacheQueryOptions): Promise<readonly Response[]> {
 		if (request) {
 			const req = this.buildRequest(request);
 			const entry = this.cache[req.url];
 			if (!entry) {
-				return [];
+				return Promise.resolve([]);
 			}
-			return this.getResponsesFromEntry(entry);
+			return Promise.resolve(this.getResponsesFromEntry(entry));
 		}
-		return Object.values(this.cache).reduce<Response[]>((acc, curr) => {
-			return acc.concat(this.getResponsesFromEntry(curr));
-		}, []);
+		return Promise.resolve(
+			Object.values(this.cache).reduce<Response[]>((acc, curr) => {
+				return acc.concat(this.getResponsesFromEntry(curr));
+			}, []),
+		);
 	}
 
-	public async put(request: RequestInfo | URL, response: Response): Promise<void> {
+	public put(request: RequestInfo | URL, response: Response): Promise<void> {
 		const req = this.buildRequest(request);
 		this.handleAdd(req, response);
+		return Promise.resolve();
 	}
 
 	private buildRequest(request: RequestInfo | URL) {
@@ -118,19 +118,19 @@ export class MockupCache implements Cache {
 
 export class MockupCacheStore implements CacheStorage {
 	private cacheStore = new Map<string, Cache>();
-	public async delete(cacheName: string): Promise<boolean> {
-		return this.cacheStore.delete(cacheName);
+	public delete(cacheName: string): Promise<boolean> {
+		return Promise.resolve(this.cacheStore.delete(cacheName));
 	}
 
-	public async has(cacheName: string): Promise<boolean> {
-		return this.cacheStore.has(cacheName);
+	public has(cacheName: string): Promise<boolean> {
+		return Promise.resolve(this.cacheStore.has(cacheName));
 	}
 
-	public async keys(): Promise<string[]> {
-		return Array.from(this.cacheStore.keys());
+	public keys(): Promise<string[]> {
+		return Promise.resolve(Array.from(this.cacheStore.keys()));
 	}
 
-	public async match(request: RequestInfo | URL, options?: MultiCacheQueryOptions | undefined): Promise<Response | undefined> {
+	public async match(request: RequestInfo | URL, options?: MultiCacheQueryOptions): Promise<Response | undefined> {
 		if (options?.cacheName) {
 			const cache = this.cacheStore.get(options.cacheName);
 			if (cache) {
@@ -146,12 +146,12 @@ export class MockupCacheStore implements CacheStorage {
 		return undefined;
 	}
 
-	public async open(cacheName: string): Promise<Cache> {
+	public open(cacheName: string): Promise<Cache> {
 		let cache = this.cacheStore.get(cacheName);
 		if (!cache) {
 			cache = new MockupCache();
 			this.cacheStore.set(cacheName, cache);
 		}
-		return cache;
+		return Promise.resolve(cache);
 	}
 }

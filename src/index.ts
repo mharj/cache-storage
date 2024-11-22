@@ -2,6 +2,7 @@ let localCacheStore: CacheStorage | undefined;
 
 /**
  * Set alternative cache store (e.g. mockup for testing)
+ * @since v0.0.1
  */
 export function setCacheStorage(storage: CacheStorage) {
 	localCacheStore = storage;
@@ -13,6 +14,7 @@ function haveBrowserCacheStorage(): boolean {
 
 /**
  * Check if we have any cache store instance available
+ * @since v0.0.1
  */
 export function haveCacheStorage(): boolean {
 	return haveBrowserCacheStorage() || !!localCacheStore;
@@ -55,6 +57,7 @@ function cacheRequest(request: RequestInfo | URL) {
 /**
  * - if ```{ifNoneMatch: true}``` is set, we are passing ETag value from cache response to the request 'if-none-match' header for data validation.
  * - if ```{ifMatch: true}``` is set, we are passing ETag value from cache response to the request 'if-match' header for data validation.
+ * @since v0.0.1
  */
 export type CacheOptions = {ifNoneMatch?: boolean; ifMatch?: boolean};
 
@@ -77,7 +80,7 @@ function handleCacheHeaders(req: Request, res: Response, {ifNoneMatch, ifMatch}:
  * Try to return a response from cache
  * - if ```{ifNoneMatch: true}``` is set, we are passing ETag value from cache response to the request 'if-none-match' header for data validation.
  * - if ```{ifMatch: true}``` is set, we are passing ETag value from cache response to the request 'if-match' header for data validation.
- * @param {Request} req RequestInfo | URL to match
+ * @param {Request} reqLike RequestInfo | URL to match
  * @param {CacheOptions & CacheQueryOptions} options optional CacheQueryOptions and CacheOptions
  * @param {string=} cacheName name of the cache to match (default: 'default')
  * @returns Response or undefined
@@ -87,17 +90,18 @@ function handleCacheHeaders(req: Request, res: Response, {ifNoneMatch, ifMatch}:
  * const res = await fetch(req);
  * if (res.status === 304) { // 304 Not Modified
  *   // use cached response
+ * @since v0.0.1
  */
-export async function cacheMatch(request: RequestInfo | URL, options?: CacheOptions & CacheQueryOptions, cacheName = 'default'): Promise<Response | undefined> {
+export async function cacheMatch(reqLike: RequestInfo | URL, options?: CacheOptions & CacheQueryOptions, cacheName = 'default'): Promise<Response | undefined> {
 	const storage = getCacheStorage();
 	if (storage) {
-		const req = buildRequest(request);
+		const req = buildRequest(reqLike);
 		const cache = await storage.open(cacheName);
-		const resp = await cache.match(req, getCacheOptions(options));
-		if (resp) {
-			handleCacheHeaders(req, resp, options);
+		const res = await cache.match(req, getCacheOptions(options));
+		if (res) {
+			handleCacheHeaders(req, res, options);
 		}
-		return resp;
+		return res;
 	}
 	return undefined;
 }
@@ -111,33 +115,35 @@ export async function cacheMatch(request: RequestInfo | URL, options?: CacheOpti
  * const req = new Request('http://localhost:3000/api/v1/health');
  * const res = await fetch(req);
  * await cacheStore(req, res); // store response if response is ok (2xx status codes)
+ * @since v0.0.1
  */
-export async function cacheStore(request: RequestInfo | URL, res: Response, cacheName = 'default'): Promise<void> {
+export async function cacheStore(req: RequestInfo | URL, res: Response, cacheName = 'default'): Promise<void> {
 	const storage = getCacheStorage();
 	if (storage && res.ok) {
 		const cache = await storage.open(cacheName);
-		return cache.put(cacheRequest(request), res.clone());
+		return cache.put(cacheRequest(req), res.clone());
 	}
 }
 
 /**
  * Clean cache by baseUrl and list of urls to keep in cache
- * @param basePath start of url to clean
+ * @param reqLike start of url to clean
  * @param excludeUrls list of full urls to keep in cache
  * @param cacheName name of cache to clean (default: 'default')
  * @example
  * const bingImageList: string[] = await getBingImageUrlList();
  * await cacheCleanup('https://bing.com/th', bingImageList);
+ * @since v0.0.1
  */
-export async function cacheCleanup(request: RequestInfo | URL, excludeUrls: string[], cacheName = 'default'): Promise<number> {
+export async function cacheCleanup(reqLike: RequestInfo | URL, excludeUrls: string[], cacheName = 'default'): Promise<number> {
 	let count = 0;
 	const storage = getCacheStorage();
 	if (storage) {
-		const req = buildRequest(request);
+		const req = buildRequest(reqLike);
 		const cache = await storage.open(cacheName);
 		const notFound = (await cache.keys()).filter((res) => res.url.startsWith(req.url) && excludeUrls.indexOf(res.url) === -1);
-		for (const req of notFound) {
-			if (await cache.delete(req)) {
+		for (const currentReq of notFound) {
+			if (await cache.delete(currentReq)) {
 				count++;
 			}
 		}
@@ -149,6 +155,7 @@ export async function cacheCleanup(request: RequestInfo | URL, excludeUrls: stri
  * delete cache store by name
  * @param cacheName name of the cache to delete (default: 'default')
  * @returns boolean if cache was deleted or 'no-storage' if no cache storage is available
+ * @since v0.0.1
  */
 export async function cacheDelete(cacheName = 'default'): Promise<boolean | 'no-storage'> {
 	const storage = getCacheStorage();
@@ -177,6 +184,7 @@ async function getDateHeader(resPromise: Response | undefined | Promise<Response
  * @param timestamp delete older requests than this Date timestamp
  * @param cacheName name of the cache to delete (default: 'default')
  * @returns number of deleted requests
+ * @since v0.0.3
  */
 export async function deleteOldRequests(timestamp: Date, cacheName = 'default'): Promise<number> {
 	let count = 0;
