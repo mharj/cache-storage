@@ -1,7 +1,5 @@
-/* eslint-disable sonarjs/no-duplicate-string */
-/* eslint-disable sort-imports */
 import {beforeAll, describe, expect, it} from 'vitest';
-import {setCacheStorage, haveCacheStorage, cacheStore, cacheCleanup, cacheMatch, cacheDelete, deleteOldRequests} from '../src/';
+import {cacheCleanup, cacheDelete, cacheMatch, cacheStore, deleteOldRequests, haveCacheStorage, setCacheStorage} from '../src/';
 import {MockupCacheStore} from './lib/mockupCache';
 
 const req = new Request('https://example.com/one');

@@ -46,7 +46,7 @@ export class MockupCache implements Cache {
 		return Promise.resolve();
 	}
 
-	public async delete(request: RequestInfo | URL, options?: CacheQueryOptions): Promise<boolean> {
+	public delete(request: RequestInfo | URL, options?: CacheQueryOptions): Promise<boolean> {
 		const req = this.buildRequest(request);
 		return Promise.resolve(this.handleDelete(req, options || {}));
 	}
