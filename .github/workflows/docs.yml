@@ -48,7 +48,7 @@ jobs:
         run: ${{ env.NPM }} run build
 
       - name: Generate Documentation
-        run: ${{ env.NPM }} run docs
+        run: ${{ env.NPM }} run doc
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
