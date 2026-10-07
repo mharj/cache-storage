@@ -2,81 +2,51 @@
 	"name": "@mharj/cache-storage",
 	"version": "0.0.7",
 	"description": "Cache storage API functions",
-	"main": "./dist/index.js",
+	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/index.d.mts",
 	"exports": {
-		".": {
-			"require": "./dist/index.js",
-			"import": "./dist/index.mjs",
-			"types": "./dist/index.d.ts"
-		}
-	},
-	"scripts": {
-		"doc": "typedoc",
-		"build": "tsup src/index.ts --format cjs,esm --dts --clean",
-		"prepublishOnly": "npm run build",
-		"test": "vitest test --run --no-isolate --coverage",
-		"coverage": "vitest test --run --no-isolate --reporter=dot --coverage --coverage.reporter=lcov",
-		"lint": "eslint . --ext .ts",
-		"validate": "tsc --noEmit"
+		"import": {
+			"types": "./dist/index.d.mts",
+			"default": "./dist/index.mjs"
+		},
+		"require": {
+			"types": "./dist/index.d.cts",
+			"default": "./dist/index.cjs"
+		},
+		"default": "./dist/index.mjs"
 	},
 	"files": [
 		"dist"
 	],
+	"scripts": {
+		"doc": "typedoc",
+		"build": "tsdown src/index.ts --format cjs,esm --dts --clean",
+		"prepublishOnly": "npm run build",
+		"test": "vitest test --run --no-isolate --coverage",
+		"coverage": "vitest test --run --no-isolate --reporter=dot --coverage --coverage.reporter=lcov",
+		"lint": "biome check",
+		"validate": "tsc --noEmit"
+	},
 	"repository": "github:mharj/cache-storage",
 	"keywords": [
 		"storage",
 		"cache"
 	],
-	"mocha": {
-		"exit": true,
-		"extension": [
-			"ts",
-			"js"
-		],
-		"recursive": true,
-		"require": [
-			"ts-node/register",
-			"source-map-support/register"
-		],
-		"reporters": [
-			"spec",
-			"mocha-junit-reporter"
-		]
-	},
-	"nyc": {
-		"check-coverage": true,
-		"extension": [
-			".ts",
-			".js"
-		]
-	},
 	"author": "mharj",
 	"license": "MIT",
 	"devDependencies": {
-		"@stylistic/eslint-plugin": "^2.11.0",
-		"@stylistic/eslint-plugin-ts": "^2.11.0",
-		"@types/node": "^18.19.64",
-		"@typescript-eslint/eslint-plugin": "^8.15.0",
-		"@typescript-eslint/parser": "^8.15.0",
-		"@vitest/coverage-v8": "^2.1.5",
-		"c8": "^10.1.2",
-		"eslint": "^8.57.1",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-config-standard": "^17.1.0",
-		"eslint-plugin-deprecation": "^3.0.0",
-		"eslint-plugin-jsdoc": "^50.5.0",
-		"eslint-plugin-prettier": "^5.2.1",
-		"eslint-plugin-sonarjs": "^0.23.0",
-		"prettier": "^3.3.3",
+		"@biomejs/biome": "^2.5.15",
+		"@types/node": "^18.19.130",
+		"@vitest/coverage-v8": "^5.0.3",
+		"c8": "^12.0.0",
 		"source-map-support": "^0.5.21",
+		"tsdown": "^0.23.0",
 		"tslib": "^2.8.1",
-		"tsup": "^8.3.5",
-		"typedoc": "^0.26.11",
-		"typescript": "^5.6.3",
-		"vite": "^5.4.11",
-		"vitest": "^2.1.4"
+		"typedoc": "^0.28.20",
+		"typescript": "^5.9.3",
+		"vite": "^8.3.3",
+		"vitest": "^5.0.3"
 	},
-	"packageManager": "pnpm@9.14.2+sha256.06e65a4965baff6d6097f9c8f75c35f6d420974dbc03d775009056a69edfd271"
+	"packageManager": "pnpm@12.9.1+sha512.06b055fff5cd20dc12781de173ced3310ce0951bf2ec620211a16045d5444d5c93a663210764ef29a653a610459ba0368f0e74f84d80c54723cf95aae7bc0d6d"
 }

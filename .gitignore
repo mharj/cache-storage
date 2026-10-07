@@ -65,3 +65,6 @@ dist
 
 # unit testing
 test-results.xml
+
+# docs
+docs
