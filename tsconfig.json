@@ -19,8 +19,7 @@
     "noImplicitAny": true,
     "importHelpers": true,
     "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "esModuleInterop": false
+    "noUnusedLocals": true
   },
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
